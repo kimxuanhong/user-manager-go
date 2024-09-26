@@ -1,0 +1,18 @@
+server:
+  host: "localhost"
+  port: 8080
+  mode: "release"
+
+database:
+  host: "localhost"
+  port: 5432
+  username: "keycloak"
+  password: "password"
+  name: "keycloak"
+  scheme: "keycloak"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  database: 0

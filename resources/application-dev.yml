@@ -1,0 +1,12 @@
+server:
+  host: "localhost"
+  port: 8081
+  mode: "debug"
+
+database:
+  host: "localhost"
+  port: 5432
+  username: "keycloak"
+  password: "password"
+  name: "keycloak"
+  scheme: "keycloak"

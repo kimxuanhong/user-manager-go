@@ -1,0 +1,47 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.exe~
+*.out
+
+# Test binary, build output
+*.test
+*.log
+
+# Go vendor directory (if not using Go modules)
+vendor/
+
+# Output of the go command
+bin/
+build/
+dist/
+
+# Ignore editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go workspace related files
+go.work
+go.work.sum
+
+# Dependency directories
+Godeps/
+
+# Generated files
+*.coverage
+*.coverprofile
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
