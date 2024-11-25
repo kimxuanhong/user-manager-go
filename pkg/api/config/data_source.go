@@ -2,10 +2,11 @@ package config
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/api"
+	"github.com/kimxuanhong/user-manager-go/pkg/infra/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"sync"
+	"time"
 )
 
 type Datasource struct {
@@ -15,7 +16,7 @@ type Datasource struct {
 var instanceDatasource *Datasource
 var datasourceOnce sync.Once
 
-func NewDatasource(cfg *api.Config) *Datasource {
+func NewDatasource(cfg *Config) *Datasource {
 	datasourceOnce.Do(func() {
 
 		host := cfg.Database.Host
@@ -34,11 +35,21 @@ func NewDatasource(cfg *api.Config) *Datasource {
 		// Thiết lập schema mặc định
 		db.Exec(fmt.Sprintf("SET search_path TO %s", scheme))
 
-		//// Migrate schema
-		//err = db.AutoMigrate(&entity.User{})
-		//if err != nil {
-		//	panic("failed to create user table")
-		//}
+		// Migrate schema
+		err = db.AutoMigrate(&entity.User{})
+		if err != nil {
+			panic("failed to create user table")
+		}
+
+		sqlDB, err := db.DB()
+		if err != nil {
+			panic("failed to create user table")
+		}
+
+		// Cấu hình connection pool
+		sqlDB.SetMaxOpenConns(20)
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetConnMaxLifetime(30 * time.Minute)
 
 		instanceDatasource = &Datasource{
 			DB: db,

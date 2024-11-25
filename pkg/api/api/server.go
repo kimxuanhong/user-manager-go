@@ -1,45 +1,48 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
 	"log"
 	"sync"
 )
 
-type HandleRouter func(group *gin.RouterGroup)
-
-type Server interface {
-	Router(relativePath string, routerFunc HandleRouter)
-	Start()
+type HttpServer interface {
+	Get(path string, handler HandlerFunc[any])
+	Post(path string, handler HandlerFunc[any])
+	Start(host string, port string)
 }
 
-type server struct {
+type httpServer struct {
 	*gin.Engine
-	Cfg *Config `inject:""`
+	deps *config.Dependencies
 }
 
-var instanceServer *server
-var serverOnce sync.Once
+var instanceHttpServer *httpServer
+var httpServerOnce sync.Once
 
-func NewServer() Server {
-	serverOnce.Do(func() {
-		instanceServer = &server{
+func NewHttpServer(deps *config.Dependencies) HttpServer {
+	httpServerOnce.Do(func() {
+		instanceHttpServer = &httpServer{
 			Engine: gin.New(),
+			deps:   deps,
 		}
 	})
-	return instanceServer
+	return instanceHttpServer
 }
 
-func (r *server) Router(relativePath string, routerFunc HandleRouter) {
-	group := r.Group(relativePath)
-	routerFunc(group)
+func (s *httpServer) Get(path string, handler HandlerFunc[any]) {
+	s.GET(path, RouteHandler(s.deps, handler))
 }
 
-func (r *server) Start() {
-	// Khởi động server trên cổng được cấu hình
-	err := r.Run(fmt.Sprintf("%s:%d", r.Cfg.Server.Host, r.Cfg.Server.Port))
+func (s *httpServer) Post(path string, handler HandlerFunc[any]) {
+	s.POST(path, RouteHandler(s.deps, handler))
+}
+
+func (s *httpServer) Start(host string, port string) {
+	err := s.Run(host + ":" + port)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
+		return
 	}
 }

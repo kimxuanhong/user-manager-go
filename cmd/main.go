@@ -1,24 +1,22 @@
 package main
 
 import (
-	"github.com/kimxuanhong/user-manager-go/cmd/di"
 	"github.com/kimxuanhong/user-manager-go/pkg/api/api"
-	"github.com/kimxuanhong/user-manager-go/pkg/infra/config"
-	"log"
+	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
+	"github.com/kimxuanhong/user-manager-go/pkg/api/controller"
+	"github.com/kimxuanhong/user-manager-go/pkg/infra/dao"
 )
 
 func main() {
-	app := di.NewDI()
-	cfg := api.NewConfig()
-	server := api.NewServer()
-	database := config.NewDatasource(cfg)
-	app.Dependencies(cfg)
-	app.Dependencies(database)
-	app.Dependencies(server)
-	Application(server, app)
-	if err := app.Graph(); err != nil {
-		log.Fatalf("Error: %v", err)
-		return
+	cfg := config.NewConfig()
+	db := config.NewDatasource(cfg)
+	deps := &config.Dependencies{
+		Config: cfg,
+		DB:     db,
 	}
-	server.Start()
+	userDao := dao.NewUserDao()
+	userHandler := controller.NewUserRoute(userDao)
+	server := api.NewHttpServer(deps)
+	server.Post("/partner/:id", userHandler.GetUserInfosByPartner)
+	server.Start("127.0.0.1", "3001")
 }

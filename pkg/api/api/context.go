@@ -3,92 +3,87 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/dto"
+	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
 	"net/http"
-	"reflect"
 	"time"
 )
 
 type Context struct {
 	*gin.Context
+	Deps      *config.Dependencies
 	RequestId string
 }
 
-type HandlerFunc func(ctx *Context)
+type Handler[T any] func(obj T, error error)
+type HandlerFunc[T any] func(ctx *Context, whenDone Handler[T])
+
+func RouteHandler(deps *config.Dependencies, handler HandlerFunc[any]) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		successChan := make(chan any, 1)
+		errorChan := make(chan error, 1)
+		defer close(successChan)
+		defer close(errorChan)
+		go func() {
+			handler(&Context{Context: ctx, Deps: deps, RequestId: uuid.NewString()}, func(obj any, error error) {
+				if error != nil {
+					errorChan <- error
+					return
+				}
+				successChan <- obj
+				return
+			})
+		}()
+
+		select {
+		case res := <-successChan:
+			ctx.JSON(http.StatusOK, res)
+			return
+		case err := <-errorChan:
+			ctx.JSON(http.StatusOK, gin.H{"error": err.Error()})
+			return
+		case <-ctx.Done():
+			ctx.JSON(http.StatusOK, gin.H{"error": "request canceled"})
+			return
+		}
+	}
+}
 
 var timeLayout = "2006-01-02T15:04:05.000-07:00"
 
-func Handler(handler HandlerFunc) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		handler(&Context{
-			Context:   ctx,
-			RequestId: uuid.NewString(),
-		})
-	}
-}
-
-func GetRequestId(data interface{}) (interface{}, bool) {
-	// Lấy giá trị reflect của struct
-	v := reflect.ValueOf(data)
-	// Kiểm tra xem data có phải là struct hay không
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem() // Nếu là pointer, lấy giá trị thực của struct
-	}
-	if v.Kind() == reflect.Struct {
-		// Tìm trường có tên là `fieldName`
-		field := v.FieldByName("RequestId")
-		// Kiểm tra xem trường đó có tồn tại và có thể lấy giá trị không
-		if field.IsValid() {
-			return field.Interface(), true
-		}
-	}
-	return nil, false
-}
-
-func (ctx *Context) BindAndValidate(data interface{}) error {
-	// Bind JSON body to struct
-	if err := ctx.ShouldBindJSON(data); err != nil {
+func (ctx *Context) Bind(obj any) error {
+	if err := ctx.ShouldBindJSON(&obj); err != nil {
 		return err
-	}
-	if id, ok := GetRequestId(data); ok {
-		ctx.RequestId = id.(string)
 	}
 	return nil
 }
 
-func (ctx *Context) print(status int, data interface{}) {
-	ctx.JSONP(status, data)
-	if status != http.StatusOK {
-		ctx.Abort()
-	}
+func (ctx *Context) SetRequestId(requestId string) {
+	ctx.RequestId = requestId
 }
 
-func (ctx *Context) OK(data interface{}) {
-	response := &dto.Response{
+func (ctx *Context) OK(data any) *Response {
+	return &Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
-		ResponseCode: dto.SUCCESS,
+		ResponseCode: SUCCESS,
 		Data:         data,
 	}
-	ctx.print(http.StatusOK, response)
 }
 
-func (ctx *Context) Bad(status dto.Status, data interface{}) {
-	response := &dto.Response{
+func (ctx *Context) Bad(status Status, data any) *Response {
+	return &Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
 		ResponseCode: status,
 		Data:         data,
 	}
-	ctx.print(http.StatusBadRequest, response)
 }
 
-func (ctx *Context) Error(data interface{}) {
-	response := &dto.Response{
+func (ctx *Context) Error(data any) *Response {
+	return &Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
-		ResponseCode: dto.ERROR,
+		ResponseCode: ERROR,
 		Data:         data,
 	}
-	ctx.print(http.StatusInternalServerError, response)
 }

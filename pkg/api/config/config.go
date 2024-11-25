@@ -1,4 +1,4 @@
-package api
+package config
 
 import (
 	"fmt"
@@ -50,7 +50,6 @@ func NewConfig() *Config {
 	return instanceConfig
 }
 
-// loadFile đọc file YAML và nạp dữ liệu vào struct
 func loadFile(filename string, config *Config) error {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -71,7 +70,6 @@ func loadFile(filename string, config *Config) error {
 }
 
 func (r *Config) loadConfig() {
-	// Bước 1: Load cấu hình mặc định từ application.yml
 	currentDir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Không thể lấy thư mục hiện tại: %v", err)
@@ -83,7 +81,6 @@ func (r *Config) loadConfig() {
 		log.Fatalf("Không thể load file application.yml: %v", err)
 	}
 
-	// Bước 2: Kiểm tra và ghi đè cấu hình theo môi trường nếu có
 	if env := os.Getenv("APP_ENV"); env != "" {
 		envConfigPath := filepath.Join(resourceDir, fmt.Sprintf("application-%s.yml", env))
 		if err := loadFile(envConfigPath, r); err != nil {

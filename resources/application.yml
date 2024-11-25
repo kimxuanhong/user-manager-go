@@ -9,7 +9,7 @@ database:
   username: "keycloak"
   password: "password"
   name: "keycloak"
-  scheme: "keycloak"
+  scheme: "public"
 
 redis:
   host: "localhost"
