@@ -8,6 +8,7 @@ import (
 )
 
 type Workflow struct {
+	Name   string
 	Tasks  []task.Task
 	Result *task.Data
 	Error  error
@@ -19,7 +20,7 @@ func (wf *Workflow) AddTask(task task.Task) {
 
 func (wf *Workflow) Run(ctx *api.Context, taskData *task.Data, whenDone task.Handler) {
 	go func(ctx *api.Context, taskData *task.Data) {
-		log.Println("---------------------- Workflow starting! ----------------------")
+		log.Printf("---------------------- Workflow %s starting! ----------------------\n", wf.Name)
 		wf.Result = taskData
 		for _, taskStep := range wf.Tasks {
 			taskChannel := make(chan struct {
@@ -49,23 +50,22 @@ func (wf *Workflow) Run(ctx *api.Context, taskData *task.Data, whenDone task.Han
 			close(taskChannel)
 
 			if result.error != nil {
-				log.Printf("---------------------- Task failed: %v\n", result.error)
 				wf.Error = result.error
 				wf.Result = result.Data
 				whenDone(ctx, wf.Result, wf.Error)
 				return
 			}
-			log.Println("---------------------- Task success ----------------------")
 			wf.Result = result.Data
 		}
 
-		log.Println("---------------------- Workflow success! ----------------------")
+		log.Printf("---------------------- Workflow %s success! ----------------------\n", wf.Name)
 		whenDone(ctx, wf.Result, wf.Error)
 	}(ctx, taskData)
 }
 
-func NewWorkflow() *Workflow {
+func NewWorkflow(workflowName string) *Workflow {
 	return &Workflow{
+		Name:  workflowName,
 		Tasks: make([]task.Task, 0),
 	}
 }

@@ -9,35 +9,31 @@ import (
 	"sync"
 )
 
-type UserRoute interface {
-	GetUserInfosByPartner(ctx *api.Context, whenDone api.Handler[any])
-}
-
-type userRoute struct {
+type getUserByIdRoute struct {
 	userDao dao.UserDao
 }
 
-var instanceUserRoute *userRoute
+var instanceUserRoute *getUserByIdRoute
 var userRouteOnce sync.Once
 
-func NewUserRoute(userDao dao.UserDao) UserRoute {
+func GetUserByIdRoute(userDao dao.UserDao) api.Route {
 	userRouteOnce.Do(func() {
-		instanceUserRoute = &userRoute{userDao: userDao}
+		instanceUserRoute = &getUserByIdRoute{userDao: userDao}
 	})
 	return instanceUserRoute
 }
 
-func (r *userRoute) GetUserInfosByPartner(ctx *api.Context, whenDone api.Handler[any]) {
+func (r *getUserByIdRoute) RouteHandler(ctx *api.Context, whenDone api.Handler[any]) {
 	partnerId := ctx.Param("id")
 	var req dto.Request
-	if err := ctx.Bind(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		whenDone(ctx.Bad(dto.INVALID, err.Error()), nil)
 		return
 	}
 	ctx.SetRequestId(req.RequestId)
 	r.userDao.FindUserByPartnerId(ctx, partnerId, func(obj []entity.User, error error) {
 		if error != nil || obj == nil {
-			whenDone(nil, fmt.Errorf("bad request"))
+			whenDone(ctx.Bad(dto.INVALID, fmt.Errorf("bad request").Error()), nil)
 			return
 		}
 		whenDone(ctx.OK(obj), nil)

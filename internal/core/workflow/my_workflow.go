@@ -11,7 +11,7 @@ type MyWorkFlow struct {
 
 func NewMyWorkFlow() *MyWorkFlow {
 	wf := &MyWorkFlow{
-		Workflow: workflow.NewWorkflow(),
+		Workflow: workflow.NewWorkflow("MyWorkFlow"),
 	}
 	wf.AddTask(task.NewGetConfigTask())
 	wf.AddTask(task.NewCacheConfigTask())

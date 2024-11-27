@@ -15,8 +15,7 @@ func main() {
 		DB:     db,
 	}
 	userDao := dao.NewUserDao()
-	userHandler := controller.NewUserRoute(userDao)
 	server := api.NewHttpServer(deps)
-	server.Post("/partner/:id", userHandler.GetUserInfosByPartner)
+	server.Post("/partner/:id", controller.GetUserByIdRoute(userDao))
 	server.Start("127.0.0.1", "3001")
 }

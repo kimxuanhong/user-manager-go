@@ -7,9 +7,13 @@ import (
 	"sync"
 )
 
+type Route interface {
+	RouteHandler(ctx *Context, whenDone Handler[any])
+}
+
 type HttpServer interface {
-	Get(path string, handler HandlerFunc[any])
-	Post(path string, handler HandlerFunc[any])
+	Get(path string, route Route)
+	Post(path string, route Route)
 	Start(host string, port string)
 }
 
@@ -31,12 +35,12 @@ func NewHttpServer(deps *config.Dependencies) HttpServer {
 	return instanceHttpServer
 }
 
-func (s *httpServer) Get(path string, handler HandlerFunc[any]) {
-	s.GET(path, RouteHandler(s.deps, handler))
+func (s *httpServer) Get(path string, route Route) {
+	s.GET(path, RouteHandler(s.deps, route.RouteHandler))
 }
 
-func (s *httpServer) Post(path string, handler HandlerFunc[any]) {
-	s.POST(path, RouteHandler(s.deps, handler))
+func (s *httpServer) Post(path string, route Route) {
+	s.POST(path, RouteHandler(s.deps, route.RouteHandler))
 }
 
 func (s *httpServer) Start(host string, port string) {
