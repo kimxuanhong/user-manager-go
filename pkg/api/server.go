@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
+	"github.com/kimxuanhong/user-manager-go/pkg/config"
 	"log"
 	"sync"
 )

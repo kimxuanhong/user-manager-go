@@ -1,8 +1,8 @@
-package dao
+package sql
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/api"
+	"github.com/kimxuanhong/user-manager-go/pkg/api"
 )
 
 type Params struct {

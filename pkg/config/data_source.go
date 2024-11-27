@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/infra/entity"
+	"github.com/kimxuanhong/user-manager-go/pkg/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"sync"

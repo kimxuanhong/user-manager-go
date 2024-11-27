@@ -24,14 +24,14 @@ func (u *User) TableName() string {
 }
 
 // BeforeCreate tự động sinh UUID và thiết lập thời điểm hiện tại cho CreatedAt
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+func (u *User) BeforeCreate(ctx *gorm.DB) (err error) {
 	u.ID = uuid.NewString()
 	u.CreatedAt = time.Now()
 	return
 }
 
 // BeforeUpdate tự động cập nhật thời điểm hiện tại cho UpdatedAt
-func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
+func (u *User) BeforeUpdate(ctx *gorm.DB) (err error) {
 	u.UpdatedAt = time.Now()
 	return
 }

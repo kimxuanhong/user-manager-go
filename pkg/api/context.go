@@ -3,7 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
+	"github.com/kimxuanhong/user-manager-go/pkg/config"
+	"github.com/kimxuanhong/user-manager-go/pkg/dto"
 	"net/http"
 	"time"
 )
@@ -61,17 +62,17 @@ func (ctx *Context) SetRequestId(requestId string) {
 	ctx.RequestId = requestId
 }
 
-func (ctx *Context) OK(data any) *Response {
-	return &Response{
+func (ctx *Context) OK(data any) *dto.Response {
+	return &dto.Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
-		ResponseCode: SUCCESS,
+		ResponseCode: dto.SUCCESS,
 		Data:         data,
 	}
 }
 
-func (ctx *Context) Bad(status Status, data any) *Response {
-	return &Response{
+func (ctx *Context) Bad(status dto.Status, data any) *dto.Response {
+	return &dto.Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
 		ResponseCode: status,
@@ -79,11 +80,11 @@ func (ctx *Context) Bad(status Status, data any) *Response {
 	}
 }
 
-func (ctx *Context) Error(data any) *Response {
-	return &Response{
+func (ctx *Context) Error(data any) *dto.Response {
+	return &dto.Response{
 		ResponseId:   ctx.RequestId,
 		ResponseTime: time.Now().Format(timeLayout),
-		ResponseCode: ERROR,
+		ResponseCode: dto.ERROR,
 		Data:         data,
 	}
 }

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/kimxuanhong/user-manager-go/pkg/api/api"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/config"
-	"github.com/kimxuanhong/user-manager-go/pkg/api/controller"
-	"github.com/kimxuanhong/user-manager-go/pkg/infra/dao"
+	"github.com/kimxuanhong/user-manager-go/internal/infra/dao"
+	"github.com/kimxuanhong/user-manager-go/pkg/api"
+	"github.com/kimxuanhong/user-manager-go/pkg/config"
+	"github.com/kimxuanhong/user-manager-go/pkg/controller"
 )
 
 func main() {

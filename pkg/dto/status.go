@@ -1,4 +1,4 @@
-package api
+package dto
 
 type Status struct {
 	Code    string `gorm:"column:code" json:"code"`
