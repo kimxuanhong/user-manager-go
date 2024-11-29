@@ -27,3 +27,7 @@ func (r *CacheConfigTask) Execute(ctx *api.Context, taskData *task.Data, whenDon
 		whenDone(ctx, taskData, nil)
 	}()
 }
+
+func (r *CacheConfigTask) GetName() string {
+	return r.Name
+}

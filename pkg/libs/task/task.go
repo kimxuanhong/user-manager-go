@@ -13,4 +13,5 @@ type Handler func(ctx *api.Context, taskData *Data, err error)
 
 type Task interface {
 	Execute(ctx *api.Context, taskData *Data, whenDone Handler)
+	GetName() string
 }

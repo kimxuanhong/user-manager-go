@@ -27,3 +27,7 @@ func (r *GetConfigTask) Execute(ctx *api.Context, taskData *task.Data, whenDone 
 		whenDone(ctx, taskData, nil)
 	}()
 }
+
+func (r *GetConfigTask) GetName() string {
+	return r.Name
+}

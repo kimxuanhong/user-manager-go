@@ -27,3 +27,7 @@ func (r *CallGetInquiryTask) Execute(ctx *api.Context, taskData *task.Data, when
 		whenDone(ctx, taskData, nil)
 	}()
 }
+
+func (r *CallGetInquiryTask) GetName() string {
+	return r.Name
+}

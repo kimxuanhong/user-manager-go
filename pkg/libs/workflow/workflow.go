@@ -23,6 +23,7 @@ func (wf *Workflow) Run(ctx *api.Context, taskData *task.Data, whenDone task.Han
 		log.Printf("---------------------- Workflow %s starting! ----------------------\n", wf.Name)
 		wf.Result = taskData
 		for _, taskStep := range wf.Tasks {
+			log.Printf("Run %s", taskStep.GetName())
 			taskChannel := make(chan struct {
 				*task.Data
 				error
