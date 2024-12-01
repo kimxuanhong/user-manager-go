@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kimxuanhong/user-manager-go/pkg/dependencies"
 	"log"
 	"net/http"
 	"sync"
@@ -26,15 +27,17 @@ type HttpServer interface {
 
 type httpServer struct {
 	*gin.Engine
+	*dependencies.Dependency
 }
 
 var instanceHttpServer *httpServer
 var httpServerOnce sync.Once
 
-func NewHttpServer() HttpServer {
+func NewHttpServer(deps *dependencies.Dependency) HttpServer {
 	httpServerOnce.Do(func() {
 		instanceHttpServer = &httpServer{
-			Engine: gin.New(),
+			Engine:     gin.New(),
+			Dependency: deps,
 		}
 	})
 	return instanceHttpServer
@@ -45,19 +48,19 @@ func (s *httpServer) Middleware(middlewareFunc gin.HandlerFunc) {
 }
 
 func (s *httpServer) Get(path string, handler HandlerFunc[any]) {
-	s.GET(path, RouteHandler(handler))
+	s.GET(path, RouteHandler(s.Dependency, handler))
 }
 
 func (s *httpServer) Post(path string, handler HandlerFunc[any]) {
-	s.POST(path, RouteHandler(handler))
+	s.POST(path, RouteHandler(s.Dependency, handler))
 }
 
 func (s *httpServer) Put(path string, handler HandlerFunc[any]) {
-	s.PUT(path, RouteHandler(handler))
+	s.PUT(path, RouteHandler(s.Dependency, handler))
 }
 
 func (s *httpServer) Delete(path string, handler HandlerFunc[any]) {
-	s.DELETE(path, RouteHandler(handler))
+	s.DELETE(path, RouteHandler(s.Dependency, handler))
 }
 
 func (s *httpServer) Routes(routes []RouteConfig) {
@@ -66,13 +69,13 @@ func (s *httpServer) Routes(routes []RouteConfig) {
 		group.Use(r.Middleware...)
 		switch r.Method {
 		case http.MethodGet:
-			group.GET("", RouteHandler(r.Handler))
+			group.GET("", RouteHandler(s.Dependency, r.Handler))
 		case http.MethodPost:
-			group.POST("", RouteHandler(r.Handler))
+			group.POST("", RouteHandler(s.Dependency, r.Handler))
 		case http.MethodPut:
-			group.PUT("", RouteHandler(r.Handler))
+			group.PUT("", RouteHandler(s.Dependency, r.Handler))
 		case http.MethodDelete:
-			group.DELETE("", RouteHandler(r.Handler))
+			group.DELETE("", RouteHandler(s.Dependency, r.Handler))
 		default:
 			panic("Unsupported HTTP method: " + r.Method)
 		}

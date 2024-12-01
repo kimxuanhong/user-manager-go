@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
 	"github.com/kimxuanhong/user-manager-go/pkg/task"
@@ -23,7 +24,7 @@ func (r *CallGetInquiryTask) Execute(ctx *app.Context, taskData *task.Data, when
 		time.Sleep(1 * time.Second)
 		log.Println(r.Name + " đang chạy")
 		// Giả sử task gặp lỗi
-		taskData.Output.(*entity.User).UserName = "Kết quả " + r.Name
+		taskData.Output.(*dto.Response).Data.(*entity.User).UserName = "Kết quả " + r.Name
 		whenDone(ctx, taskData, nil)
 	}()
 }

@@ -13,6 +13,7 @@ func NewMyWorkFlow() *MyWorkFlow {
 	wf := &MyWorkFlow{
 		Workflow: workflow.NewWorkflow("MyWorkFlow"),
 	}
+	wf.AddTask(task.NewGetUserByPartnerIdTask())
 	wf.AddTask(task.NewGetConfigTask())
 	wf.AddTask(task.NewCacheConfigTask())
 	wf.AddTask(task.NewCallGetInquiryTask())

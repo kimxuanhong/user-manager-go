@@ -1,8 +1,7 @@
-package sql
+package config
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/internal/config"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,7 +16,7 @@ type Database struct {
 var instanceDatabase *Database
 var databaseOnce sync.Once
 
-func InitDB(cfg *config.Config) *Database {
+func InitDB(cfg *Config) *Database {
 	databaseOnce.Do(func() {
 		host := cfg.Database.Host
 		port := cfg.Database.Port
