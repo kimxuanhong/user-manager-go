@@ -14,6 +14,7 @@ func SafeGo(whenDone Handler[any], fn func()) {
 			if r := recover(); r != nil {
 				log.Printf("Recovered from panic: %v\n", r)
 				whenDone(nil, fmt.Errorf("Recovered from panic: %v\n", r))
+				return
 			}
 		}()
 		fn()

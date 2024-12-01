@@ -39,6 +39,10 @@ func (r *partnerRoute) GetUserByPartnerId(ctx *app.Context, whenDone app.Handler
 		Input:  &req,
 		Output: &dto.Response{},
 	}, func(ctx *app.Context, taskData *task.Data, err error) {
+		if err != nil {
+			whenDone(ctx.Bad(dto.INVALID, err.Error()), nil)
+			return
+		}
 		whenDone(taskData.Output, nil)
 	})
 
