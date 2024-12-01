@@ -18,19 +18,16 @@ type User struct {
 	UpdatedAt time.Time `gorm:"column:updated_at"`
 }
 
-// TableName định nghĩa tên bảng của model
 func (u *User) TableName() string {
 	return "user_tbl"
 }
 
-// BeforeCreate tự động sinh UUID và thiết lập thời điểm hiện tại cho CreatedAt
 func (u *User) BeforeCreate(ctx *gorm.DB) (err error) {
 	u.ID = uuid.NewString()
 	u.CreatedAt = time.Now()
 	return
 }
 
-// BeforeUpdate tự động cập nhật thời điểm hiện tại cho UpdatedAt
 func (u *User) BeforeUpdate(ctx *gorm.DB) (err error) {
 	u.UpdatedAt = time.Now()
 	return

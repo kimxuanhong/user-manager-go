@@ -2,7 +2,7 @@ package workflow
 
 import (
 	"github.com/kimxuanhong/user-manager-go/internal/core/task"
-	"github.com/kimxuanhong/user-manager-go/pkg/libs/workflow"
+	"github.com/kimxuanhong/user-manager-go/pkg/workflow"
 )
 
 type MyWorkFlow struct {

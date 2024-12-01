@@ -1,31 +1,26 @@
-package api
+package app
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/kimxuanhong/user-manager-go/pkg/config"
-	"github.com/kimxuanhong/user-manager-go/pkg/dto"
+	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"net/http"
 	"time"
 )
 
 type Context struct {
 	*gin.Context
-	Deps      *config.Dependencies
 	RequestId string
 }
 
-type Handler[T any] func(obj T, error error)
-type HandlerFunc[T any] func(ctx *Context, whenDone Handler[T])
-
-func RouteHandler(deps *config.Dependencies, handler HandlerFunc[any]) gin.HandlerFunc {
+func RouteHandler(handler HandlerFunc[any]) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		successChan := make(chan any, 1)
-		errorChan := make(chan error, 1)
+		successChan := make(chan any, 10)
+		errorChan := make(chan error, 10)
 		defer close(successChan)
 		defer close(errorChan)
 		go func() {
-			handler(&Context{Context: ctx, Deps: deps, RequestId: uuid.NewString()}, func(obj any, error error) {
+			handler(&Context{Context: ctx, RequestId: uuid.NewString()}, func(obj any, error error) {
 				if error != nil {
 					errorChan <- error
 					return

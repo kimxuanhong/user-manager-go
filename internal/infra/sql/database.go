@@ -1,24 +1,24 @@
-package config
+package sql
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/entity"
+	"github.com/kimxuanhong/user-manager-go/internal/config"
+	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"sync"
 	"time"
 )
 
-type Datasource struct {
+type Database struct {
 	*gorm.DB
 }
 
-var instanceDatasource *Datasource
-var datasourceOnce sync.Once
+var instanceDatabase *Database
+var databaseOnce sync.Once
 
-func NewDatasource(cfg *Config) *Datasource {
-	datasourceOnce.Do(func() {
-
+func InitDB(cfg *config.Config) *Database {
+	databaseOnce.Do(func() {
 		host := cfg.Database.Host
 		port := cfg.Database.Port
 		user := cfg.Database.Username
@@ -51,9 +51,9 @@ func NewDatasource(cfg *Config) *Datasource {
 		sqlDB.SetMaxIdleConns(10)
 		sqlDB.SetConnMaxLifetime(30 * time.Minute)
 
-		instanceDatasource = &Datasource{
+		instanceDatabase = &Database{
 			DB: db,
 		}
 	})
-	return instanceDatasource
+	return instanceDatabase
 }

@@ -1,10 +1,10 @@
 package task
 
 import (
-	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/api"
-	"github.com/kimxuanhong/user-manager-go/pkg/entity"
-	"github.com/kimxuanhong/user-manager-go/pkg/libs/task"
+	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
+	"github.com/kimxuanhong/user-manager-go/pkg/app"
+	"github.com/kimxuanhong/user-manager-go/pkg/task"
+	"log"
 	"time"
 )
 
@@ -18,10 +18,10 @@ func NewCacheConfigTask() task.Task {
 	}
 }
 
-func (r *CacheConfigTask) Execute(ctx *api.Context, taskData *task.Data, whenDone task.Handler) {
+func (r *CacheConfigTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	go func() {
 		time.Sleep(1 * time.Second)
-		fmt.Println(r.Name + " đang chạy")
+		log.Println(r.Name + " đang chạy")
 		// Giả sử task gặp lỗi
 		taskData.Output.(*entity.User).UserName = "Kết quả " + r.Name
 		whenDone(ctx, taskData, nil)

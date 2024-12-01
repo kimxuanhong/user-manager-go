@@ -2,7 +2,7 @@ package sql
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/api"
+	"github.com/kimxuanhong/user-manager-go/pkg/app"
 )
 
 type Params struct {
@@ -10,7 +10,7 @@ type Params struct {
 	Values []interface{}
 }
 
-func QueryWithParams[T any](ctx *api.Context, params Params, whenDone api.Handler[[]T]) {
+func QueryWithParams[T any](ctx *app.Context, db *Database, params Params, whenDone app.Handler[[]T]) {
 	go func() {
 		select {
 		case <-ctx.Done():
@@ -18,7 +18,7 @@ func QueryWithParams[T any](ctx *api.Context, params Params, whenDone api.Handle
 			return
 		default:
 			var results []T
-			err := ctx.Deps.DB.WithContext(ctx).Raw(params.Query, params.Values...).Scan(&results).Error
+			err := db.DB.WithContext(ctx).Raw(params.Query, params.Values...).Scan(&results).Error
 			if err != nil {
 				whenDone(nil, err)
 				return
@@ -28,7 +28,7 @@ func QueryWithParams[T any](ctx *api.Context, params Params, whenDone api.Handle
 	}()
 }
 
-func QueryWithoutParams[T any](ctx *api.Context, query string, whenDone api.Handler[[]T]) {
+func QueryWithoutParams[T any](ctx *app.Context, db *Database, query string, whenDone app.Handler[[]T]) {
 	go func() {
 		select {
 		case <-ctx.Done():
@@ -36,7 +36,7 @@ func QueryWithoutParams[T any](ctx *api.Context, query string, whenDone api.Hand
 			return
 		default:
 			var results []T
-			err := ctx.Deps.DB.WithContext(ctx).Raw(query).Scan(&results).Error
+			err := db.DB.WithContext(ctx).Raw(query).Scan(&results).Error
 			if err != nil {
 				whenDone(nil, err)
 				return

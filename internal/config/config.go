@@ -42,10 +42,10 @@ var (
 	configOnce     sync.Once
 )
 
-func NewConfig() *Config {
+func InitConfig() *Config {
 	configOnce.Do(func() {
 		instanceConfig = &Config{}
-		instanceConfig.loadConfig()
+		instanceConfig.load()
 	})
 	return instanceConfig
 }
@@ -69,7 +69,7 @@ func loadFile(filename string, config *Config) error {
 	return nil
 }
 
-func (r *Config) loadConfig() {
+func (r *Config) load() {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Không thể lấy thư mục hiện tại: %v", err)

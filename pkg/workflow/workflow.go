@@ -2,8 +2,8 @@ package workflow
 
 import (
 	"fmt"
-	"github.com/kimxuanhong/user-manager-go/pkg/api"
-	"github.com/kimxuanhong/user-manager-go/pkg/libs/task"
+	"github.com/kimxuanhong/user-manager-go/pkg/app"
+	"github.com/kimxuanhong/user-manager-go/pkg/task"
 	"log"
 )
 
@@ -18,8 +18,8 @@ func (wf *Workflow) AddTask(task task.Task) {
 	wf.Tasks = append(wf.Tasks, task)
 }
 
-func (wf *Workflow) Run(ctx *api.Context, taskData *task.Data, whenDone task.Handler) {
-	go func(ctx *api.Context, taskData *task.Data) {
+func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
+	go func(ctx *app.Context, taskData *task.Data) {
 		log.Printf("---------------------- Workflow %s starting! ----------------------\n", wf.Name)
 		wf.Result = taskData
 		for _, taskStep := range wf.Tasks {
@@ -37,7 +37,7 @@ func (wf *Workflow) Run(ctx *api.Context, taskData *task.Data, whenDone task.Han
 						error
 					}{wf.Result, fmt.Errorf("context cancled")}
 				default:
-					taskStep.Execute(ctx, wf.Result, func(ctx *api.Context, result *task.Data, err error) {
+					taskStep.Execute(ctx, wf.Result, func(ctx *app.Context, result *task.Data, err error) {
 						taskChannel <- struct {
 							*task.Data
 							error
