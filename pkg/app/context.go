@@ -1,11 +1,14 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"github.com/kimxuanhong/user-manager-go/pkg/dependencies"
+	"log"
 	"net/http"
+	"runtime/debug"
 	"time"
 )
 
@@ -22,6 +25,12 @@ func RouteHandler(deps *dependencies.Dependency, handler HandlerFunc[any]) gin.H
 		defer close(successChan)
 		defer close(errorChan)
 		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.Printf("Panic recovered: %v\nStack trace: %s", r, string(debug.Stack()))
+					errorChan <- fmt.Errorf("internal Server Error. Please try again later")
+				}
+			}()
 			handler(&Context{Context: ctx, Dependency: deps, RequestId: uuid.NewString()}, func(obj any, error error) {
 				if error != nil {
 					errorChan <- error

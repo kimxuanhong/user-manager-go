@@ -17,6 +17,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 				c.JSON(500, gin.H{
 					"message": "Internal Server Error. Please try again later.",
 				})
+				c.Abort()
 			}
 		}()
 		c.Next()

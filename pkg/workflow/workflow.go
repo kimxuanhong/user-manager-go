@@ -37,14 +37,18 @@ func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Han
 						error
 					}{wf.Result, fmt.Errorf("context cancled")}
 				default:
-					taskStep.Execute(ctx, wf.Result, func(ctx *app.Context, result *task.Data, err error) {
-						taskChannel <- struct {
-							*task.Data
-							error
-						}{result, err}
+					app.SafeGo(func(obj any, err error) {
+						whenDone(ctx, taskData, err)
+					}, func() {
+						taskStep.Execute(ctx, wf.Result, func(ctx *app.Context, result *task.Data, err error) {
+							taskChannel <- struct {
+								*task.Data
+								error
+							}{result, err}
+						})
 					})
-				}
 
+				}
 			}(taskStep)
 
 			result := <-taskChannel
