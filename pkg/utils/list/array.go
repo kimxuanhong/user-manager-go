@@ -8,7 +8,7 @@ type Array[T any] struct {
 
 func AsArray[T any](elements []T) *Array[T] {
 	list := Array[T]{elements: make([]T, 0)}
-	if len(elements) > 0 {
+	if elements != nil && len(elements) > 0 {
 		list.elements = elements
 	}
 	return &list
