@@ -20,6 +20,9 @@ func (wf *Workflow) AddTask(task task.Task) {
 
 func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	go func(ctx *app.Context, taskData *task.Data) {
+		defer app.PanicHandler(func(obj any, err error) {
+			whenDone(ctx, taskData, err)
+		})
 		log.Printf("---------------------- Workflow %s starting! ----------------------\n", wf.Name)
 		wf.Result = taskData
 		for _, taskStep := range wf.Tasks {
@@ -30,6 +33,12 @@ func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Han
 			}, 1)
 
 			go func(taskStep task.Task) {
+				defer app.PanicHandler(func(obj any, err error) {
+					taskChannel <- struct {
+						*task.Data
+						error
+					}{nil, err}
+				})
 				select {
 				case <-ctx.Done():
 					taskChannel <- struct {
@@ -37,18 +46,11 @@ func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Han
 						error
 					}{wf.Result, fmt.Errorf("context cancled")}
 				default:
-					app.SafeGo(func(obj any, err error) {
+					taskStep.Execute(ctx, wf.Result, func(ctx *app.Context, result *task.Data, err error) {
 						taskChannel <- struct {
 							*task.Data
 							error
-						}{taskData, err}
-					}, func() {
-						taskStep.Execute(ctx, wf.Result, func(ctx *app.Context, result *task.Data, err error) {
-							taskChannel <- struct {
-								*task.Data
-								error
-							}{result, err}
-						})
+						}{result, err}
 					})
 				}
 			}(taskStep)

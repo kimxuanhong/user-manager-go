@@ -21,6 +21,10 @@ func NewGetConfigTask() task.Task {
 
 func (r *GetConfigTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	go func() {
+		defer app.PanicHandler(func(obj any, err error) {
+			whenDone(ctx, taskData, err)
+			return
+		})
 		time.Sleep(1 * time.Second)
 		log.Println(r.Name + " đang chạy")
 		// Giả sử task gặp lỗi

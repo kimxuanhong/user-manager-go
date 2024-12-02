@@ -22,15 +22,18 @@ func NewGetUserByPartnerIdTask() task.Task {
 func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	request := taskData.Input.(*dto.Request)
 	sql.QueryWithParams(ctx, sql.Params{Query: sql.GetUserByPartnerId, Values: []interface{}{request.RequestId}}, func(users []entity.User, err error) {
-		task.SafeCallback(ctx, whenDone, func() {
-			if err != nil {
-				log.Printf("Query was error! %v\n", err)
-				whenDone(ctx, taskData, err)
-				return
-			}
-			taskData.Output = ctx.OK(&users[0])
-			whenDone(ctx, taskData, nil)
+		defer app.PanicHandler(func(obj any, err error) {
+			whenDone(ctx, taskData, err)
 		})
+
+		if err != nil {
+			log.Printf("Query was error! %v\n", err)
+			whenDone(ctx, taskData, err)
+			return
+		}
+		taskData.Output = nil
+		taskData.Input = nil
+		whenDone(ctx, taskData, nil)
 	})
 }
 

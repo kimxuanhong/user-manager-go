@@ -11,7 +11,10 @@ type Params struct {
 }
 
 func QueryWithParams[T any](ctx *app.Context, params Params, whenDone app.Handler[[]T]) {
-	go app.SafeGo(func(obj any, err error) { whenDone([]T{}, err) }, func() {
+	go func() {
+		defer app.PanicHandler(func(obj any, err error) {
+			whenDone([]T{}, err)
+		})
 		select {
 		case <-ctx.Done():
 			whenDone(nil, fmt.Errorf("context canceled before query execution"))
@@ -25,11 +28,14 @@ func QueryWithParams[T any](ctx *app.Context, params Params, whenDone app.Handle
 			}
 			whenDone(results, nil)
 		}
-	})
+	}()
 }
 
 func QueryWithoutParams[T any](ctx *app.Context, query string, whenDone app.Handler[[]T]) {
-	go app.SafeGo(func(obj any, err error) { whenDone([]T{}, err) }, func() {
+	go func() {
+		defer app.PanicHandler(func(obj any, err error) {
+			whenDone([]T{}, err)
+		})
 		select {
 		case <-ctx.Done():
 			whenDone(nil, fmt.Errorf("context canceled before query execution"))
@@ -43,5 +49,5 @@ func QueryWithoutParams[T any](ctx *app.Context, query string, whenDone app.Hand
 			}
 			whenDone(results, nil)
 		}
-	})
+	}()
 }
