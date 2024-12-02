@@ -14,8 +14,8 @@ func AsArray[T any](elements []T) *Array[T] {
 	return &list
 }
 
-func (l *Array[T]) Add(element T) {
-	l.elements = append(l.elements, element)
+func (l *Array[T]) Add(element ...T) {
+	l.elements = append(l.elements, element...)
 }
 
 func (l *Array[T]) Remove(index int) error {
