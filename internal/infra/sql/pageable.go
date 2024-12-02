@@ -102,7 +102,7 @@ func (f *Pageable[T]) GetOffset() int {
 
 func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*list.Array[T]]) {
 	params := append(f.GetParams(), f.GetLimit(), f.GetOffset())
-	Query(ctx, Params{Query: f.GetSql(), Values: params}, func(obj []T, err error) {
-		whenDone(list.AsArray(obj), err)
+	Query(ctx, Params{Query: f.GetSql(), Values: params}, func(obj *list.Array[T], err error) {
+		whenDone(obj, err)
 	})
 }

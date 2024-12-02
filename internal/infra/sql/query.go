@@ -3,6 +3,7 @@ package sql
 import (
 	"fmt"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
+	"github.com/kimxuanhong/user-manager-go/pkg/utils/list"
 	"log"
 )
 
@@ -11,24 +12,24 @@ type Params struct {
 	Values []interface{}
 }
 
-func Query[T any](ctx *app.Context, params Params, whenDone app.Handler[[]T]) {
+func Query[T any](ctx *app.Context, params Params, whenDone app.Handler[*list.Array[T]]) {
 	go func() {
 		log.Println("SQL: " + params.Query)
 		defer app.PanicHandler(func(obj any, err error) {
-			whenDone([]T{}, err)
+			whenDone(list.NewArray[T](), err)
 		})
 		select {
 		case <-ctx.Done():
-			whenDone(nil, fmt.Errorf("context canceled before query execution"))
+			whenDone(list.NewArray[T](), fmt.Errorf("context canceled before query execution"))
 			return
 		default:
 			var results []T
 			err := ctx.Db.WithContext(ctx).Raw(params.Query, params.Values...).Scan(&results).Error
 			if err != nil {
-				whenDone([]T{}, err)
+				whenDone(list.NewArray[T](), err)
 				return
 			}
-			whenDone(results, nil)
+			whenDone(list.AsArray(results), nil)
 		}
 	}()
 }

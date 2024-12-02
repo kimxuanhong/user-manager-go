@@ -48,7 +48,7 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 				log.Println(user.ID)
 			})
 
-			taskData.Output = ctx.OK(obj.Slice())
+			taskData.Output = ctx.OK(obj)
 			taskData.Input = nil
 			whenDone(ctx, taskData, nil)
 		})
