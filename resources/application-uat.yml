@@ -1,6 +1,6 @@
 server:
   host: "localhost"
-  port: 8082
+  port: "3001"
   mode: "debug"
 
 database:

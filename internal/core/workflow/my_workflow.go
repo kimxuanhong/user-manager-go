@@ -14,8 +14,8 @@ func NewMyWorkFlow() *MyWorkFlow {
 		Workflow: workflow.NewWorkflow("MyWorkFlow"),
 	}
 	wf.AddTask(task.NewGetUserByPartnerIdTask())
-	wf.AddTask(task.NewGetConfigTask())
-	wf.AddTask(task.NewCacheConfigTask())
-	wf.AddTask(task.NewCallGetInquiryTask())
+	//wf.AddTask(task.NewGetConfigTask())
+	//wf.AddTask(task.NewCacheConfigTask())
+	//wf.AddTask(task.NewCallGetInquiryTask())
 	return wf
 }

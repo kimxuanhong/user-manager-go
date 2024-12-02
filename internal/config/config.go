@@ -11,7 +11,7 @@ import (
 
 type ServerConfig struct {
 	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
+	Port string `yaml:"port"`
 	Mode string `yaml:"mode"`
 }
 

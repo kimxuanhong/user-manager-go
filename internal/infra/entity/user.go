@@ -9,6 +9,7 @@ import (
 type User struct {
 	ID        string    `gorm:"column:id;primaryKey;type:uuid"`
 	PartnerId string    `gorm:"column:partner_id"`
+	Total     int       `gorm:"column:total"`
 	UserName  string    `gorm:"column:user_name"`
 	FirstName string    `gorm:"column:first_name"`
 	LastName  string    `gorm:"column:last_name"`

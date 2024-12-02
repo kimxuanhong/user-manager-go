@@ -5,6 +5,7 @@ import (
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"sync"
 	"time"
 )
@@ -55,4 +56,14 @@ func InitDB(cfg *Config) *Database {
 		}
 	})
 	return instanceDatabase
+}
+
+func CloseDB(db *Database) {
+	if sqlDb, err := db.DB.DB(); err != nil {
+		log.Printf("Error closing database: %v", err)
+	} else if err := sqlDb.Close(); err != nil {
+		log.Printf("Error closing database: %v", err)
+	} else {
+		fmt.Println("Database connection closed.")
+	}
 }
