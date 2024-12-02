@@ -14,8 +14,8 @@ type Pageable[T any] struct {
 	pageSize    int
 }
 
-type Page struct {
-	Data         any
+type Page[T any] struct {
+	Data         *list.Array[T]
 	PageNumber   int
 	PageSize     int
 	TotalElement int
@@ -62,7 +62,7 @@ func (f *Pageable[T]) SetQuery(query string) *Pageable[T] {
 }
 
 func (f *Pageable[T]) SetPageNumber(pageNumber int) *Pageable[T] {
-	if pageNumber <= 0 {
+	if (pageNumber - 1) <= 0 {
 		return f
 	}
 	f.pageNumber = pageNumber
@@ -73,7 +73,7 @@ func (f *Pageable[T]) SetPageSize(pageSize int) *Pageable[T] {
 	if pageSize <= 0 {
 		return f
 	}
-	f.pageSize = pageSize - 1
+	f.pageSize = pageSize
 	return f
 }
 
@@ -97,12 +97,18 @@ func (f *Pageable[T]) GetLimit() int {
 }
 
 func (f *Pageable[T]) GetOffset() int {
-	return f.pageSize * f.pageNumber
+	return f.pageSize * (f.pageNumber - 1)
 }
 
-func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*list.Array[T]]) {
+func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 	params := append(f.GetParams(), f.GetLimit(), f.GetOffset())
-	Query(ctx, Params{Query: f.GetSql(), Values: params}, func(obj []T, err error) {
-		whenDone(list.AsArray(obj), err)
+	Query(ctx, Params{Query: f.GetSql(), Values: params}, func(obj *list.Array[T], err error) {
+		whenDone(&Page[T]{
+			Data:         obj,
+			PageNumber:   f.pageNumber,
+			PageSize:     f.pageSize,
+			TotalElement: 0, //TODO
+			TotalPage:    0, //TODO
+		}, err)
 	})
 }

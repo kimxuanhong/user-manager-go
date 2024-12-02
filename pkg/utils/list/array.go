@@ -1,17 +1,24 @@
 package list
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type Array[T any] struct {
 	elements []T
 }
 
+func NewArray[T any]() *Array[T] {
+	return &Array[T]{elements: make([]T, 0)}
+}
+
 func AsArray[T any](elements []T) *Array[T] {
-	list := Array[T]{elements: make([]T, 0)}
+	list := NewArray[T]()
 	if elements != nil && len(elements) > 0 {
 		list.elements = elements
 	}
-	return &list
+	return list
 }
 
 func (l *Array[T]) Add(element ...T) {
@@ -50,7 +57,7 @@ func (l *Array[T]) Size() int {
 }
 
 func (l *Array[T]) IsEmpty() bool {
-	return len(l.elements) == 0
+	return l.Size() == 0
 }
 
 func (l *Array[T]) Filter(predicate func(T) bool) *Array[T] {
@@ -86,22 +93,30 @@ func (l *Array[T]) Contains(element T, predicate func(T, T) bool) bool {
 	return false
 }
 
-func (l *Array[T]) First() T {
+func (l *Array[T]) First() (T, error) {
 	var zeroValue T
 	if l.IsEmpty() {
-		return zeroValue
+		return zeroValue, fmt.Errorf("array is empty")
 	}
-	return l.elements[0]
+	return l.elements[0], nil
 }
 
-func (l *Array[T]) Last() T {
+func (l *Array[T]) Last() (T, error) {
 	var zeroValue T
 	if l.IsEmpty() {
-		return zeroValue
+		return zeroValue, fmt.Errorf("array is empty")
 	}
-	return l.elements[l.Size()-1]
+	return l.elements[l.Size()-1], nil
 }
 
 func (l *Array[T]) Slice() []T {
 	return l.elements
+}
+
+func (l *Array[T]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.elements)
+}
+
+func (l *Array[T]) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, &l.elements)
 }

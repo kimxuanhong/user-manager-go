@@ -25,7 +25,7 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 	sql.InitPage[entity.User]().
 		SetQuery(sql.GetUserByPartnerId).
 		AndWhere("id = ?", request.RequestId).
-		Fetch(ctx, func(obj *list.Array[entity.User], err error) {
+		Fetch(ctx, func(obj *sql.Page[entity.User], err error) {
 			defer app.PanicHandler(func(obj any, err error) {
 				whenDone(ctx, taskData, nil)
 			})
@@ -36,11 +36,11 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 				return
 			}
 
-			obj.ForEach(func(user entity.User) {
+			obj.Data.ForEach(func(user entity.User) {
 				log.Println(user.ID)
 			})
 
-			list.Map(obj, func(user entity.User) entity.User {
+			list.Map(obj.Data, func(user entity.User) entity.User {
 				return entity.User{
 					ID: "test",
 				}
@@ -48,7 +48,7 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 				log.Println(user.ID)
 			})
 
-			taskData.Output = ctx.OK(obj.Slice())
+			taskData.Output = ctx.OK(obj)
 			taskData.Input = nil
 			whenDone(ctx, taskData, nil)
 		})
