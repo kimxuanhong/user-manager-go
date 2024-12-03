@@ -21,7 +21,7 @@ func NewCacheConfigTask() task.Task {
 
 func (r *CacheConfigTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	go func() {
-		defer app.PanicHandler(func(obj any, err error) {
+		defer app.PanicHandler(func(err error) {
 			whenDone(ctx, taskData, err)
 		})
 		time.Sleep(1 * time.Second)

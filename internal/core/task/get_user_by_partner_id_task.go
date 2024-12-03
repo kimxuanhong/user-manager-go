@@ -22,36 +22,34 @@ func NewGetUserByPartnerIdTask() task.Task {
 
 func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	request := taskData.Input.(*dto.Request)
-	sql.InitPage[entity.User]().
+	sql.InitPage[*entity.User]().
 		SetQuery(sql.GetUserByPartnerId).
+		SetPageNumber(request.PageNumber).
+		SetPageSize(request.PageSize).
 		AndWhere("id = ?", request.RequestId).
-		Fetch(ctx, func(obj *sql.Page[entity.User], err error) {
-			defer app.PanicHandler(func(obj any, err error) {
-				whenDone(ctx, taskData, nil)
-			})
-
+		Fetch(ctx, app.SafeCallback(func(obj *sql.Page[*entity.User], err error) {
 			if err != nil {
 				log.Printf("Query was error! %v\n", err)
 				whenDone(ctx, taskData, nil)
 				return
 			}
 
-			obj.Data.ForEach(func(user entity.User) {
+			obj.Data.ForEach(func(user *entity.User) {
 				log.Println(user.ID)
 			})
 
-			list.Map(obj.Data, func(user entity.User) entity.User {
-				return entity.User{
+			list.Map(obj.Data, func(user *entity.User) *entity.User {
+				return &entity.User{
 					ID: "test",
 				}
-			}).ForEach(func(user entity.User) {
+			}).ForEach(func(user *entity.User) {
 				log.Println(user.ID)
 			})
 
 			taskData.Output = ctx.OK(obj)
 			taskData.Input = nil
 			whenDone(ctx, taskData, nil)
-		})
+		}))
 }
 
 func (r *GetUserByPartnerIdTask) GetName() string {
