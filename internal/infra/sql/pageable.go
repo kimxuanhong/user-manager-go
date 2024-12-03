@@ -6,7 +6,11 @@ import (
 	"strings"
 )
 
-type Pageable[T any] struct {
+type PageData interface {
+	GetTotal() int
+}
+
+type Pageable[T PageData] struct {
 	query       string
 	values      []interface{}
 	whereClause strings.Builder
@@ -14,7 +18,7 @@ type Pageable[T any] struct {
 	pageSize    int
 }
 
-type Page[T any] struct {
+type Page[T PageData] struct {
 	Data         *list.Array[T]
 	PageNumber   int
 	PageSize     int
@@ -22,10 +26,10 @@ type Page[T any] struct {
 	TotalPage    int
 }
 
-func InitPage[T any]() *Pageable[T] {
+func InitPage[T PageData]() *Pageable[T] {
 	return &Pageable[T]{
 		values:     make([]interface{}, 0),
-		pageNumber: 0,
+		pageNumber: 1,
 		pageSize:   30,
 	}
 }
@@ -102,13 +106,30 @@ func (f *Pageable[T]) GetOffset() int {
 
 func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 	params := append(f.GetParams(), f.GetLimit(), f.GetOffset())
-	Query(ctx, Params{Query: f.GetSql(), Values: params}, func(obj *list.Array[T], err error) {
+	Query(ctx, Params{Query: f.GetSql(), Values: params}, app.SafeCallback(func(obj *list.Array[T], err error) {
+		if err != nil {
+			whenDone(&Page[T]{
+				PageNumber: f.pageNumber,
+				PageSize:   f.pageSize,
+			}, err)
+			return
+		}
+		total := getTotal(obj)
+		panic("Test panic")
 		whenDone(&Page[T]{
 			Data:         obj,
 			PageNumber:   f.pageNumber,
 			PageSize:     f.pageSize,
-			TotalElement: 0, //TODO
-			TotalPage:    0, //TODO
+			TotalElement: total,
+			TotalPage:    total / f.pageSize,
 		}, err)
-	})
+	}))
+}
+
+func getTotal[T PageData](obj *list.Array[T]) int {
+	if first, err := obj.First(); err != nil {
+		return 0
+	} else {
+		return first.GetTotal()
+	}
 }

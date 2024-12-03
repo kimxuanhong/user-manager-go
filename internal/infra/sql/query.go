@@ -13,7 +13,7 @@ type Params struct {
 
 func Query[T any](ctx *app.Context, params Params, whenDone app.Handler[*list.Array[T]]) {
 	go func() {
-		defer app.PanicHandler(func(obj any, err error) {
+		defer app.PanicHandler(func(err error) {
 			whenDone(list.NewArray[T](), err)
 		})
 		select {
@@ -33,7 +33,7 @@ func Query[T any](ctx *app.Context, params Params, whenDone app.Handler[*list.Ar
 
 func Insert[T any](ctx *app.Context, items *list.Array[T], whenDone app.Handler[*list.Array[T]]) {
 	go func() {
-		defer app.PanicHandler(func(obj any, err error) {
+		defer app.PanicHandler(func(err error) {
 			whenDone(list.NewArray[T](), err)
 		})
 		select {

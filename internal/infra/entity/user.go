@@ -33,3 +33,7 @@ func (u *User) BeforeUpdate(ctx *gorm.DB) (err error) {
 	u.UpdatedAt = time.Now()
 	return
 }
+
+func (u *User) GetTotal() int {
+	return u.Total
+}

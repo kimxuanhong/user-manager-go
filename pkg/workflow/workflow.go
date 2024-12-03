@@ -20,7 +20,7 @@ func (wf *Workflow) AddTask(task task.Task) {
 
 func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
 	go func(ctx *app.Context, taskData *task.Data) {
-		defer app.PanicHandler(func(obj any, err error) {
+		defer app.PanicHandler(func(err error) {
 			whenDone(ctx, taskData, err)
 		})
 		log.Printf("---------------------- Workflow %s starting! ----------------------\n", wf.Name)
@@ -33,7 +33,7 @@ func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Han
 			}, 1)
 
 			go func(taskStep task.Task) {
-				defer app.PanicHandler(func(obj any, err error) {
+				defer app.PanicHandler(func(err error) {
 					taskChannel <- struct {
 						*task.Data
 						error
