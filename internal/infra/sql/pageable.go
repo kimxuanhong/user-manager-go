@@ -115,7 +115,6 @@ func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 			return
 		}
 		total := getTotal(obj)
-		panic("Test panic")
 		whenDone(&Page[T]{
 			Data:         obj,
 			PageNumber:   f.pageNumber,
