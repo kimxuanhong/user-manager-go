@@ -19,7 +19,7 @@ type Pageable[T PageData] struct {
 }
 
 type Page[T PageData] struct {
-	Data         *list.Array[T]
+	Data         *list.List[T]
 	PageNumber   int
 	PageSize     int
 	TotalElement int
@@ -106,7 +106,7 @@ func (f *Pageable[T]) GetOffset() int {
 
 func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 	params := append(f.GetParams(), f.GetLimit(), f.GetOffset())
-	Query(ctx, Params{Query: f.GetSql(), Values: params}, app.SafeCallback(func(obj *list.Array[T], err error) {
+	Query(ctx, Params{Query: f.GetSql(), Values: params}, app.SafeCallback(func(obj *list.List[T], err error) {
 		if err != nil {
 			whenDone(&Page[T]{
 				PageNumber: f.pageNumber,
@@ -125,7 +125,7 @@ func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 	}))
 }
 
-func getTotal[T PageData](obj *list.Array[T]) int {
+func getTotal[T PageData](obj *list.List[T]) int {
 	if first, err := obj.First(); err != nil {
 		return 0
 	} else {
