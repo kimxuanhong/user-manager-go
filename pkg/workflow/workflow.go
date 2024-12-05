@@ -37,7 +37,7 @@ func (wf *Workflow) Run(ctx *app.Context, taskData *task.Data, whenDone task.Han
 					taskChannel <- struct {
 						*task.Data
 						error
-					}{nil, err}
+					}{taskData, err}
 				})
 				select {
 				case <-ctx.Done():
