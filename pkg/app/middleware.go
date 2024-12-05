@@ -4,22 +4,18 @@ import (
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"io"
-	"log"
-	"runtime/debug"
+	"strings"
 	"time"
 )
 
 func RecoveryMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Printf("Panic recovered: %v\nStack trace: %s", r, string(debug.Stack()))
-				c.JSON(500, gin.H{
-					"message": "Internal Server Error. Please try again later.",
-				})
-				c.Abort()
-			}
-		}()
+		defer PanicHandler(func(err error) {
+			c.JSON(500, gin.H{
+				"message": "Internal Server Error. Please try again later.",
+			})
+			c.Abort()
+		})
 		c.Next()
 	}
 }
@@ -29,7 +25,7 @@ func LogRequestMiddleware() gin.HandlerFunc {
 		start := time.Now()
 
 		var requestBody []byte
-		if c.Request.Body != nil {
+		if c.Request.Body != nil && !isMultipartForm(c.Request.Header.Get("Content-Type")) {
 			requestBody, _ = io.ReadAll(c.Request.Body)
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		}
@@ -45,6 +41,10 @@ func LogRequestMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func isMultipartForm(contentType string) bool {
+	return strings.HasPrefix(contentType, "multipart/form-data")
 }
 
 func LogResponseMiddleware() gin.HandlerFunc {
