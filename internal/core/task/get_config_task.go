@@ -28,7 +28,7 @@ func (r *GetConfigTask) Execute(ctx *app.Context, taskData *task.Data, whenDone 
 		time.Sleep(1 * time.Second)
 		log.Println(r.Name + " đang chạy")
 		// Giả sử task gặp lỗi
-		taskData.Output.(*dto.Response).Data.(*entity.User).UserName = "Kết quả " + r.Name
+		taskData.Response.(*dto.Response).Data.(*entity.User).UserName = "Kết quả " + r.Name
 		whenDone(ctx, taskData, nil)
 	}()
 }

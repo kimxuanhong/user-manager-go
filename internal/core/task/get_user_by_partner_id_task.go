@@ -23,7 +23,7 @@ func NewGetUserByPartnerIdTask() task.Task {
 }
 
 func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
-	request := taskData.Input.(*dto.Request)
+	request := taskData.Request.(*dto.Request)
 	sql.InitPage[*entity.User]().
 		SetQuery(sql.GetUserByPartnerId).
 		SetPageNumber(request.PageNumber).
@@ -68,12 +68,16 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
     "request_time": "0001-01-01T00:00:00Z",
     "UpdatedAt": "0001-01-01T00:00:00Z"
 }`
+
+			for imap := range newMap.Iter() {
+				log.Println(imap.Value)
+			}
 			err = json.Unmarshal([]byte(jsonInput), &newMap)
 			if err != nil {
 				log.Fatalf("Error unmarshaling JSON: %v", err)
 			}
-			taskData.Output = ctx.OK(obj)
-			taskData.Input = nil
+			taskData.Response = ctx.OK(obj)
+			taskData.Request = nil
 			whenDone(ctx, taskData, nil)
 		}))
 }

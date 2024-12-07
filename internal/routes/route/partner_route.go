@@ -36,14 +36,14 @@ func (r *partnerRoute) GetUserByPartnerId(ctx *app.Context, whenDone app.Handler
 
 	wf := workflow.NewMyWorkFlow()
 	wf.Run(ctx, &task.Data{
-		Input:  &req,
-		Output: &dto.Response{},
+		Request:  &req,
+		Response: &dto.Response{},
 	}, func(ctx *app.Context, taskData *task.Data, err error) {
 		if err != nil {
 			whenDone(ctx.Bad(dto.INVALID, err.Error()), nil)
 			return
 		}
-		whenDone(taskData.Output, nil)
+		whenDone(taskData.Response, nil)
 	})
 
 }

@@ -75,3 +75,23 @@ func (m *Map[K, V]) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+func (m *Map[K, V]) Iter() <-chan struct {
+	Key   K
+	Value V
+} {
+	ch := make(chan struct {
+		Key   K
+		Value V
+	})
+	go func() {
+		defer close(ch)
+		for key, value := range m.data {
+			ch <- struct {
+				Key   K
+				Value V
+			}{Key: key, Value: value}
+		}
+	}()
+	return ch
+}

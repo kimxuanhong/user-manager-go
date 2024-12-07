@@ -5,8 +5,8 @@ import (
 )
 
 type Data struct {
-	Input  interface{}
-	Output interface{}
+	Request  interface{}
+	Response interface{}
 }
 
 type Handler func(ctx *app.Context, taskData *Data, err error)
