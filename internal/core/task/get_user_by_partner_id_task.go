@@ -40,6 +40,10 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 				log.Println(user.ID)
 			})
 
+			for item := range obj.Data.Iter() {
+				log.Println("Item ...." + item.ID)
+			}
+
 			list.Map(obj.Data, func(user *entity.User) *entity.User {
 				return &entity.User{
 					ID: "test",

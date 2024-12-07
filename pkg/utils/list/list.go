@@ -119,3 +119,14 @@ func (l *List[T]) MarshalJSON() ([]byte, error) {
 func (l *List[T]) UnmarshalJSON(data []byte) error {
 	return json.Unmarshal(data, &l.elements)
 }
+
+func (l *List[T]) Iter() <-chan T {
+	ch := make(chan T)
+	go func() {
+		defer close(ch)
+		for _, elem := range l.elements {
+			ch <- elem
+		}
+	}()
+	return ch
+}
