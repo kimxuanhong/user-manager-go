@@ -1,11 +1,13 @@
 package task
 
 import (
+	"encoding/json"
 	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/sql"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
 	"github.com/kimxuanhong/user-manager-go/pkg/task"
+	"github.com/kimxuanhong/user-manager-go/pkg/utils/hashmap"
 	"github.com/kimxuanhong/user-manager-go/pkg/utils/list"
 	"log"
 )
@@ -46,6 +48,26 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
 				log.Println(user.ID)
 			})
 
+			newMap := hashmap.NewMap[string, string]()
+
+			newMap.Put("abc", "abc")
+
+			log.Printf("map %s", newMap)
+			jsonInput := `{
+    "request_id": "78c83478-5e15-4720-9acb-b70ab32f011b",
+    "PartnerId": "",
+    "UserName": "",
+    "FirstName": "",
+    "LastName": "",
+    "Email": "",
+    "Status": "",
+    "request_time": "0001-01-01T00:00:00Z",
+    "UpdatedAt": "0001-01-01T00:00:00Z"
+}`
+			err = json.Unmarshal([]byte(jsonInput), &newMap)
+			if err != nil {
+				log.Fatalf("Error unmarshaling JSON: %v", err)
+			}
 			taskData.Output = ctx.OK(obj)
 			taskData.Input = nil
 			whenDone(ctx, taskData, nil)
