@@ -4,7 +4,6 @@ import (
 	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
-	"github.com/kimxuanhong/user-manager-go/pkg/task"
 	"log"
 	"time"
 )
@@ -13,23 +12,25 @@ type GetConfigTask struct {
 	Name string
 }
 
-func NewGetConfigTask() task.Task {
+func NewGetConfigTask() Task {
 	return &GetConfigTask{
 		Name: "GetConfigTask",
 	}
 }
 
-func (r *GetConfigTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
+func (r *GetConfigTask) Execute(ctx *app.Context, taskData *Data, whenDone Handler) {
 	go func() {
-		defer app.PanicHandler(func(err error) {
-			whenDone(ctx, taskData, err)
-			return
+		app.TryCatch(func(ex error) {
+			if ex != nil {
+				whenDone(ctx, taskData, ex)
+				return
+			}
+			time.Sleep(1 * time.Second)
+			log.Println(r.Name + " đang chạy")
+			// Giả sử task gặp lỗi
+			taskData.Response.(*dto.Response).Data.(*entity.User).UserName = "Kết quả " + r.Name
+			whenDone(ctx, taskData, nil)
 		})
-		time.Sleep(1 * time.Second)
-		log.Println(r.Name + " đang chạy")
-		// Giả sử task gặp lỗi
-		taskData.Response.(*dto.Response).Data.(*entity.User).UserName = "Kết quả " + r.Name
-		whenDone(ctx, taskData, nil)
 	}()
 }
 

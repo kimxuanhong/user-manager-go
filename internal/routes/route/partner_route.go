@@ -1,10 +1,10 @@
 package route
 
 import (
+	"github.com/kimxuanhong/user-manager-go/internal/core/task"
 	"github.com/kimxuanhong/user-manager-go/internal/core/workflow"
 	"github.com/kimxuanhong/user-manager-go/internal/dto"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
-	"github.com/kimxuanhong/user-manager-go/pkg/task"
 	"sync"
 )
 

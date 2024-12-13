@@ -23,7 +23,7 @@ func RouteHandler(deps *dependencies.Dependency, handler HandlerFunc[any]) gin.H
 		defer close(successChan)
 		defer close(errorChan)
 		go func() {
-			defer PanicHandler(func(err error) {
+			defer panicHandler(func(err error) {
 				errorChan <- fmt.Errorf("internal Server Error. Please try again later")
 			})
 			handler(&Context{Context: ctx, Dependency: deps, RequestId: uuid.NewString()}, func(obj any, error error) {

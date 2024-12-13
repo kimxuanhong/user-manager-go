@@ -10,7 +10,7 @@ import (
 
 func RecoveryMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer PanicHandler(func(err error) {
+		defer panicHandler(func(err error) {
 			c.JSON(500, gin.H{
 				"message": "Internal Server Error. Please try again later.",
 			})
