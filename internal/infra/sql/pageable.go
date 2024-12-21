@@ -106,6 +106,20 @@ func (f *Pageable[T]) GetOffset() int {
 
 func (f *Pageable[T]) Fetch(ctx *app.Context, whenDone app.Handler[*Page[T]]) {
 	params := append(f.GetParams(), f.GetLimit(), f.GetOffset())
+
+	promise := Query3[*list.List[T]](ctx, Params{Query: f.GetSql(), Values: params})
+
+	_, err := promise.Await()
+	if err != nil {
+		whenDone(&Page[T]{
+			PageNumber: f.pageNumber,
+			PageSize:   f.pageSize,
+		}, err)
+		return
+	}
+
+	//fmt.Println(await)
+
 	Query(ctx, Params{Query: f.GetSql(), Values: params}, app.SafeCallback(func(obj *list.List[T], err error) {
 		if err != nil {
 			whenDone(&Page[T]{

@@ -10,13 +10,16 @@ import (
 
 func RecoveryMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer PanicHandler(func(err error) {
-			c.JSON(500, gin.H{
-				"message": "Internal Server Error. Please try again later.",
-			})
-			c.Abort()
+		TryCatch(func(ex error) {
+			if ex != nil {
+				c.JSON(500, gin.H{
+					"message": "Internal Server Error. Please try again later.",
+				})
+				c.Abort()
+				return
+			}
+			c.Next()
 		})
-		c.Next()
 	}
 }
 

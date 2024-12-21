@@ -6,7 +6,6 @@ import (
 	"github.com/kimxuanhong/user-manager-go/internal/infra/entity"
 	"github.com/kimxuanhong/user-manager-go/internal/infra/sql"
 	"github.com/kimxuanhong/user-manager-go/pkg/app"
-	"github.com/kimxuanhong/user-manager-go/pkg/task"
 	"github.com/kimxuanhong/user-manager-go/pkg/utils/hashmap"
 	"github.com/kimxuanhong/user-manager-go/pkg/utils/list"
 	"log"
@@ -16,13 +15,13 @@ type GetUserByPartnerIdTask struct {
 	Name string
 }
 
-func NewGetUserByPartnerIdTask() task.Task {
+func NewGetUserByPartnerIdTask() Task {
 	return &GetUserByPartnerIdTask{
 		Name: "GetUserByPartnerIdTask",
 	}
 }
 
-func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, whenDone task.Handler) {
+func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *Data, whenDone Handler) {
 	request := taskData.Request.(*dto.Request)
 	sql.InitPage[*entity.User]().
 		SetQuery(sql.GetUserByPartnerId).
@@ -68,7 +67,6 @@ func (r *GetUserByPartnerIdTask) Execute(ctx *app.Context, taskData *task.Data, 
     "request_time": "0001-01-01T00:00:00Z",
     "UpdatedAt": "0001-01-01T00:00:00Z"
 }`
-
 			for imap := range newMap.Iter() {
 				log.Println(imap.Value)
 			}
